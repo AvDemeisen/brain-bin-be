@@ -5,9 +5,7 @@ const Schema = mongoose.Schema;
 const thoughtSchema = new Schema({
     title: String,
     copy: String,
-    month: Number,
-    year: Number,
-    tagId: String
+    tagIds: [String]
 });
 
 module.exports = mongoose.model('Thought', thoughtSchema);
