@@ -7,7 +7,6 @@ const {
     GraphQLString,
     GraphQLSchema,
     GraphQLID,
-    GraphQLInt,
     GraphQLList,
     GraphQLNonNull
 } = graphql;
@@ -18,12 +17,10 @@ const ThoughtType = new GraphQLObjectType({
         id: { type: GraphQLID },
         title: { type: GraphQLString },
         copy: { type: GraphQLString },
-        month: { type: GraphQLInt },
-        year: { type: GraphQLInt },
-        tag: {
-            type: TagType,
+        tags: {
+            type: new GraphQLList(TagType),
             resolve(parent, args){
-                return Tag.findById(parent.tagId);
+                return Tag.find( {_id: {$in: parent.tagIds}} );
             }
         }
     })
@@ -34,10 +31,10 @@ const TagType = new GraphQLObjectType({
     fields: ( ) => ({
         id: { type: GraphQLID },
         name: { type: GraphQLString },
-        Thoughts: {
+        thoughts: {
             type: new GraphQLList(ThoughtType),
             resolve(parent, args){
-                return Thought.find({ tagId: parent.id });
+                return Thought.find({ tagIds: parent.id });
             }
         }
     })
@@ -51,6 +48,13 @@ const RootQuery = new GraphQLObjectType({
             args: { id: { type: GraphQLID } },
             resolve(parent, args){
                 return Thought.findById(args.id);
+            }
+        },
+        multipleTags: {
+            type: new GraphQLList(TagType),
+            args: { ids: { type: new GraphQLList(GraphQLID) } },
+            resolve(parent, args) {
+                return Tag.find( {_id: {$in: args.ids}} );
             }
         },
         tag: {
@@ -71,7 +75,7 @@ const RootQuery = new GraphQLObjectType({
             resolve(parent, args){
                 return Tag.find({});
             }
-        }
+        },
     }
 });
 
@@ -95,16 +99,12 @@ const Mutation = new GraphQLObjectType({
             args: {
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 copy: { type: new GraphQLNonNull(GraphQLString) },
-                month: { type: new GraphQLNonNull(GraphQLInt) },
-                year: { type: new GraphQLNonNull(GraphQLInt) },
-                tagId: { type: new GraphQLNonNull(GraphQLID) }
+                tagIds: { type: new GraphQLNonNull(GraphQLID) }
             },
             resolve(parent, args){
                 let thought = new Thought({
                     title: args.title,
                     copy: args.copy,
-                    month: args.month,
-                    year: args.year,
                     tagId: args.tagId
                 });
                 return thought.save();
