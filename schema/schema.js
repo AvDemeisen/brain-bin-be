@@ -99,15 +99,42 @@ const Mutation = new GraphQLObjectType({
             args: {
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 copy: { type: new GraphQLNonNull(GraphQLString) },
-                tagIds: { type: new GraphQLNonNull(GraphQLID) }
+                tagIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))) }
             },
             resolve(parent, args){
                 let thought = new Thought({
                     title: args.title,
                     copy: args.copy,
-                    tagId: args.tagId
+                    tagIds: args.tagIds
                 });
                 return thought.save();
+            }
+        },
+        removeThought: {
+            type: ThoughtType,
+            args: { id: { type: GraphQLID } },
+            resolve(parent, args){
+                return Thought.findByIdAndDelete(args.id);
+            }
+        },
+        updateThought: {
+            type: ThoughtType,
+            args: { 
+                id: { type: new GraphQLNonNull(GraphQLID) },  
+                title: { type: new GraphQLNonNull(GraphQLString) },
+                copy: { type: new GraphQLNonNull(GraphQLString) },
+                tagIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))) }  
+            },
+            resolve(parent, args){
+                return Thought.findByIdAndUpdate(
+                    {"_id": args.id},
+                    { "$set":{
+                        title: args.title,
+                        copy: args.copy,
+                        tagIds: args.tagIds
+                    }},
+                    {"new": true}
+                )
             }
         }
     }
