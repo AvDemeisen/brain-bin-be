@@ -9,3 +9,9 @@ exports.thoughts = (req, res) => {
     })
 };
 
+exports.thought_by_id = (req, res) => {
+    Thought.findById(req.params.id, (err, product) => {
+        if (err) return next(err);
+        res.send(product);
+    })
+};
