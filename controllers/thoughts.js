@@ -1,6 +1,6 @@
 const Thought = require('../models/thought');
 
-exports.home = (req, res) => res.send('brain-bog-be');
+exports.home = (req, res) => res.send('brain bog backend');
 
 exports.thoughts = (req, res) => {
     Thought.find((err, thought) => {
