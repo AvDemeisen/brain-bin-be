@@ -5,6 +5,7 @@ const Tag = require('../models/tag');
 const {
     GraphQLObjectType,
     GraphQLString,
+    GraphQLInt,
     GraphQLSchema,
     GraphQLID,
     GraphQLList,
@@ -17,6 +18,7 @@ const ThoughtType = new GraphQLObjectType({
         id: { type: GraphQLID },
         title: { type: GraphQLString },
         copy: { type: GraphQLString },
+        year: { type: GraphQLInt },
         tags: {
             type: new GraphQLList(TagType),
             resolve(parent, args){
@@ -99,12 +101,14 @@ const Mutation = new GraphQLObjectType({
             args: {
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 copy: { type: new GraphQLNonNull(GraphQLString) },
+                year: { type: new GraphQLNonNull(GraphQLInt) },
                 tagIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))) }
             },
             resolve(parent, args){
                 let thought = new Thought({
                     title: args.title,
                     copy: args.copy,
+                    year: args.year,
                     tagIds: args.tagIds
                 });
                 return thought.save();
@@ -123,6 +127,7 @@ const Mutation = new GraphQLObjectType({
                 id: { type: new GraphQLNonNull(GraphQLID) },  
                 title: { type: new GraphQLNonNull(GraphQLString) },
                 copy: { type: new GraphQLNonNull(GraphQLString) },
+                year: { type: new GraphQLNonNull(GraphQLInt) },
                 tagIds: { type: new GraphQLNonNull(new GraphQLList(new GraphQLNonNull(GraphQLString))) }  
             },
             resolve(parent, args){
@@ -131,6 +136,7 @@ const Mutation = new GraphQLObjectType({
                     { "$set":{
                         title: args.title,
                         copy: args.copy,
+                        year: args.year,
                         tagIds: args.tagIds
                     }},
                     {"new": true}
